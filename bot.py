@@ -26,7 +26,6 @@ class DungeonBot(commands.Bot):
             application_id=CLIENT_ID
         )
 
-        # DUAS LISTAS SEPARADAS
         self.imd_list = []
         self.nightsky_list = []
 
@@ -45,7 +44,7 @@ async def on_ready():
     print(f"🤖 Bot online como {bot.user}")
 
 
-# Função para obter lista e limite conforme canal
+# Retorna lista correta por canal
 def get_room(interaction: discord.Interaction):
     if interaction.channel_id == CANAL_IMD:
         return bot.imd_list, LIMIT_IMD, "IMD"
@@ -75,7 +74,10 @@ async def entrar(interaction: discord.Interaction):
         return
 
     if len(lista) >= limite:
-        await interaction.response.send_message(f"❌ A dungeon {nome} está cheia ({limite}).", ephemeral=True)
+        await interaction.response.send_message(
+            f"❌ A dungeon {nome} está cheia ({limite}).",
+            ephemeral=True
+        )
         return
 
     lista.append(nick)
@@ -100,11 +102,15 @@ async def lista(interaction: discord.Interaction):
         return
 
     if not lista:
-        await interaction.response.send_message(f"📭 A lista da dungeon **{nome}** está vazia!")
+        await interaction.response.send_message(
+            f"📭 A lista da dungeon **{nome}** está vazia!"
+        )
         return
 
     texto = "\n".join([f"{i+1}. {n}" for i, n in enumerate(lista)])
-    await interaction.response.send_message(f"🛡️ **Lista da dungeon {nome} ({len(lista)}/{limite}):**\n{texto}")
+    await interaction.response.send_message(
+        f"🛡️ **Lista da dungeon {nome} ({len(lista)}/{limite}):**\n{texto}"
+    )
 
 
 # /sair
@@ -123,14 +129,19 @@ async def sair(interaction: discord.Interaction):
     nick = interaction.user.display_name
 
     if nick not in lista:
-        await interaction.response.send_message("❌ Você não está na lista.", ephemeral=True)
+        await interaction.response.send_message(
+            "❌ Você não está na lista.",
+            ephemeral=True
+        )
         return
 
     lista.remove(nick)
-    await interaction.response.send_message(f"🚪 {nick} saiu da dungeon **{nome}**.")
+    await interaction.response.send_message(
+        f"🚪 {nick} saiu da dungeon **{nome}**."
+    )
 
 
-# /limpar (admin)
+# /limpar lista
 @bot.tree.command(name="limpar", description="Limpar lista da dungeon (admin)")
 @app_commands.checks.has_permissions(administrator=True)
 async def limpar(interaction: discord.Interaction):
@@ -145,13 +156,16 @@ async def limpar(interaction: discord.Interaction):
         return
 
     lista.clear()
-    await interaction.response.send_message(f"🧹 Lista da dungeon **{nome}** foi limpa!")
-# /limparchat (admin) - limpar mensagens do canal
+    await interaction.response.send_message(
+        f"🧹 Lista da dungeon **{nome}** foi limpa!"
+    )
+
+
+# /limparchat — APAGAR MENSAGENS DO CANAL
 @bot.tree.command(name="limparchat", description="Limpar mensagens do canal (admin)")
 @app_commands.checks.has_permissions(administrator=True)
 async def limparchat(interaction: discord.Interaction, quantidade: int = 50):
 
-    # Verifica se o canal é um dos autorizados
     if interaction.channel_id not in [CANAL_IMD, CANAL_NIGHTSKY]:
         await interaction.response.send_message(
             "🚫 Este canal não está autorizado a usar este comando.",
@@ -159,12 +173,12 @@ async def limparchat(interaction: discord.Interaction, quantidade: int = 50):
         )
         return
 
-    # Discord aceita no máximo 100 mensagens por vez
     if quantidade > 100:
         quantidade = 100
 
     await interaction.response.send_message(
-        f"🧹 Limpando **{quantidade}** mensagens...", ephemeral=True
+        f"🧹 Limpando **{quantidade}** mensagens...",
+        ephemeral=True
     )
 
     deletadas = await interaction.channel.purge(limit=quantidade)
@@ -174,6 +188,7 @@ async def limparchat(interaction: discord.Interaction, quantidade: int = 50):
         ephemeral=True
     )
 
-# 🚀 INICIA O BOT
+
+# Iniciar bot
 TOKEN = os.getenv("DISCORD_TOKEN")
 bot.run(TOKEN)
