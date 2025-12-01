@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import os
 
 intents = discord.Intents.default()
 intents.members = True
@@ -147,4 +148,5 @@ async def limpar(interaction: discord.Interaction):
     await interaction.response.send_message(f"🧹 Lista da dungeon **{nome}** foi limpa!")
 
 # 🚀 INICIA O BOT
-bot.run("TOKEN")
+TOKEN = os.getenv("DISCORD_TOKEN")
+bot.run(TOKEN)
