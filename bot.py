@@ -146,6 +146,33 @@ async def limpar(interaction: discord.Interaction):
 
     lista.clear()
     await interaction.response.send_message(f"🧹 Lista da dungeon **{nome}** foi limpa!")
+# /limparchat (admin) - limpar mensagens do canal
+@bot.tree.command(name="limparchat", description="Limpar mensagens do canal (admin)")
+@app_commands.checks.has_permissions(administrator=True)
+async def limparchat(interaction: discord.Interaction, quantidade: int = 50):
+
+    # Verifica se o canal é um dos autorizados
+    if interaction.channel_id not in [CANAL_IMD, CANAL_NIGHTSKY]:
+        await interaction.response.send_message(
+            "🚫 Este canal não está autorizado a usar este comando.",
+            ephemeral=True
+        )
+        return
+
+    # Discord aceita no máximo 100 mensagens por vez
+    if quantidade > 100:
+        quantidade = 100
+
+    await interaction.response.send_message(
+        f"🧹 Limpando **{quantidade}** mensagens...", ephemeral=True
+    )
+
+    deletadas = await interaction.channel.purge(limit=quantidade)
+
+    await interaction.followup.send(
+        f"✅ Foram apagadas **{len(deletadas)}** mensagens!",
+        ephemeral=True
+    )
 
 # 🚀 INICIA O BOT
 TOKEN = os.getenv("DISCORD_TOKEN")
